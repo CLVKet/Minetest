@@ -1,0 +1,726 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: minetest\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-11-23 17:37+0100\n"
+"PO-Revision-Date: 2014-12-28 15:48+0900\n"
+"Last-Translator: Rui Takeda <mrrst0914@gmail.com>\n"
+"Language-Team: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.6.5\n"
+"Language: ja_JP\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+msgid "Game Name"
+msgstr "ゲーム名"
+
+msgid "Create"
+msgstr "作成"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Gamemgr: Unable to copy mod \"$1\" to game \"$2\""
+msgstr "Gamemgr: \"$1\"のModを \"$2\" にｺﾋﾟｰできません"
+
+msgid "Games"
+msgstr "ゲーム"
+
+msgid "Mods:"
+msgstr "Mod:"
+
+msgid "edit game"
+msgstr "ゲーム編集"
+
+msgid "new game"
+msgstr "新規ゲーム"
+
+msgid "Remove selected mod"
+msgstr "選択したModを削除"
+
+msgid "Ok"
+msgstr "決定"
+
+msgid "World name"
+msgstr "ワールド名"
+
+msgid "Seed"
+msgstr "シード値"
+
+msgid "Mapgen"
+msgstr "マップ生成"
+
+msgid "Game"
+msgstr "ゲーム"
+
+msgid "Delete World \"$1\"?"
+msgstr "\"$1\"のﾜｰﾙﾄﾞを削除しますか？"
+
+msgid "Yes"
+msgstr "はい"
+
+msgid "No"
+msgstr "いいえ"
+
+msgid "A world named \"$1\" already exists"
+msgstr "\"$1\"という名前のﾜｰﾙﾄﾞを作成できません。同名のﾜｰﾙﾄﾞが存在しています"
+
+msgid "No worldname given or no game selected"
+msgstr "ﾜｰﾙﾄﾞ名が入力されていないか、ｹﾞｰﾑが選択されていません"
+
+msgid "To enable shaders the OpenGL driver needs to be used."
+msgstr "ｼｪｰﾀﾞｰを有効にするには、OpenGLのﾄﾞﾗｲﾊﾞが必要です"
+
+msgid "Address/Port"
+msgstr "アドレス/ポート"
+
+msgid "Name/Password"
+msgstr "名前/パスワード"
+
+msgid "Public Serverlist"
+msgstr "公開されているｻｰﾊﾞｰﾘｽﾄ"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "Connect"
+msgstr "接続"
+
+msgid "New"
+msgstr "作成"
+
+msgid "Configure"
+msgstr "設定"
+
+msgid "Start Game"
+msgstr "ゲームスタート"
+
+msgid "Select World:"
+msgstr "ワールド選択:"
+
+msgid "Creative Mode"
+msgstr "ｸﾘｴｲﾃｨﾌﾞﾓｰﾄﾞ"
+
+msgid "Enable Damage"
+msgstr "ﾀﾞﾒｰｼﾞ有効"
+
+msgid "Public"
+msgstr "公開する"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Password"
+msgstr "パスワード"
+
+msgid "Server Port"
+msgstr "ポート"
+
+msgid "Fancy Trees"
+msgstr "きれいな木"
+
+msgid "Smooth Lighting"
+msgstr "自然な光"
+
+msgid "3D Clouds"
+msgstr "立体な雲"
+
+msgid "Opaque Water"
+msgstr "不透明な水面"
+
+msgid "Mip-Mapping"
+msgstr "ﾐｯﾌﾟﾏｯﾌﾟ"
+
+msgid "Anisotropic Filtering"
+msgstr "異方性ﾌｨﾙﾀﾘﾝｸﾞ"
+
+msgid "Bi-Linear Filtering"
+msgstr "ﾊﾞｲﾘﾆｱﾌｨﾙﾀﾘﾝｸﾞ"
+
+msgid "Tri-Linear Filtering"
+msgstr "ﾄﾘﾘﾆｱﾌｨﾙﾀﾘﾝｸﾞ"
+
+msgid "Shaders"
+msgstr "ｼｪｰﾀﾞｰ"
+
+msgid "Connected Glass"
+msgstr "ガラスを繋げる"
+
+msgid "Enable Particles"
+msgstr "破片の有効化"
+
+msgid "Finite Liquid"
+msgstr "液体の制限"
+
+msgid "Change keys"
+msgstr "キー割当て変更"
+
+msgid "Play"
+msgstr "ゲームスタート"
+
+msgid "Select texture pack:"
+msgstr "テクスチャパックを選択:"
+
+msgid "No information available"
+msgstr "情報がありません"
+
+msgid "Core Developers"
+msgstr "開発者"
+
+msgid "Active Contributors"
+msgstr "貢献者"
+
+msgid "Previous Contributors"
+msgstr "以前の貢献者"
+
+msgid "Singleplayer"
+msgstr "シングルプレイ"
+
+msgid "Client"
+msgstr "クライアント"
+
+msgid "Server"
+msgstr "マルチプレイ"
+
+msgid "Settings"
+msgstr "設定"
+
+msgid "Texturepacks"
+msgstr "テクスチャパック"
+
+msgid "Mods"
+msgstr "Mod"
+
+msgid "Credits"
+msgstr "クレジット"
+
+msgid "Installed Mods:"
+msgstr "インストール済みのMod:"
+
+msgid "Online mod repository"
+msgstr "オンラインで検索"
+
+msgid "No mod description available"
+msgstr "Modの説明がありません"
+
+msgid "Mod information:"
+msgstr "Modの情報:"
+
+msgid "Rename"
+msgstr "名前を変更"
+
+msgid "Uninstall selected modpack"
+msgstr "選択したModパックを削除"
+
+msgid "Uninstall selected mod"
+msgstr "選択したModを削除"
+
+msgid "Rename Modpack:"
+msgstr "Modパックの名前を変更"
+
+msgid "Accept"
+msgstr "了承"
+
+msgid "World:"
+msgstr "ワールド:"
+
+msgid "Hide Game"
+msgstr "内部Mod"
+
+msgid "Hide mp content"
+msgstr "Modパックの簡略化"
+
+msgid "Mod:"
+msgstr "Mod名:"
+
+msgid "Depends:"
+msgstr "依存Mod:"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Enable MP"
+msgstr "有効化"
+
+msgid "Disable MP"
+msgstr "無効化"
+
+msgid "enabled"
+msgstr "有効化"
+
+msgid "Enable all"
+msgstr "全て有効化"
+
+msgid "Modmgr: failed to delete \"$1\""
+msgstr "Modmgr: \"$1\"の削除に失敗しました"
+
+msgid "Modmgr: invalid modpath \"$1\""
+msgstr "Modmgr: \"$1\"は無効なModパスです"
+
+msgid "Are you sure you want to delete \"$1\"?"
+msgstr "\"$1\"を削除してよろしいですか？"
+
+msgid "No of course not!"
+msgstr "違います！"
+
+msgid "Page $1 of $2"
+msgstr "ページ $1/$2"
+
+msgid "Rating"
+msgstr "評価"
+
+msgid "re-Install"
+msgstr "再インストール"
+
+msgid "Install"
+msgstr "インストール"
+
+msgid "Item textures..."
+msgstr "ｱｲﾃﾑのﾃｸｽﾁｬ設定中..."
+
+msgid "Loading..."
+msgstr "ﾛｰﾄﾞ中..."
+
+msgid "Creating server..."
+msgstr "ｻｰﾊﾞｰ構築中..."
+
+msgid "Creating client..."
+msgstr "ｸﾗｲｱﾝﾄ作成中..."
+
+msgid "Resolving address..."
+msgstr "ｱﾄﾞﾚｽ解決中..."
+
+msgid "Connecting to server..."
+msgstr "ｻｰﾊﾞｰ接続中..."
+
+msgid "Item definitions..."
+msgstr "ｱｲﾃﾑ定義中..."
+
+msgid "Node definitions..."
+msgstr "ﾉｰﾄﾞ定義中..."
+
+msgid "Media..."
+msgstr "..."
+
+msgid "Shutting down..."
+msgstr "終了中..."
+
+msgid ""
+"\n"
+"Check debug.txt for details."
+msgstr ""
+"\n"
+"詳細はdebug.txtを御覧ください。"
+
+msgid "You died."
+msgstr "You died!"
+
+msgid "Respawn"
+msgstr "Respawn"
+
+msgid "Proceed"
+msgstr "決定"
+
+msgid "Keybindings. (If this menu screws up, remove stuff from minetest.conf)"
+msgstr "キーバインド"
+
+msgid "\"Use\" = climb down"
+msgstr "「使う」キーで降りる"
+
+msgid "Double tap \"jump\" to toggle fly"
+msgstr "ジャンプの二回押しで飛行"
+
+msgid "Key already in use"
+msgstr "既に使われているキーです"
+
+msgid "press key"
+msgstr "キー入力待ち"
+
+msgid "Forward"
+msgstr "前進"
+
+msgid "Backward"
+msgstr "後退"
+
+msgid "Left"
+msgstr "左へ進む"
+
+msgid "Right"
+msgstr "右へ進む"
+
+msgid "Use"
+msgstr "使う"
+
+msgid "Jump"
+msgstr "ジャンプ"
+
+msgid "Sneak"
+msgstr "こっそり進む"
+
+msgid "Drop"
+msgstr "落とす"
+
+msgid "Inventory"
+msgstr "インベントリ"
+
+msgid "Chat"
+msgstr "チャット"
+
+msgid "Command"
+msgstr "コマンド"
+
+msgid "Console"
+msgstr "コンソール"
+
+msgid "Toggle fly"
+msgstr "飛行"
+
+msgid "Toggle fast"
+msgstr "高速移動"
+
+msgid "Toggle noclip"
+msgstr "すり抜け"
+
+msgid "Range select"
+msgstr "視野切り替え"
+
+msgid "Print stacks"
+msgstr "スタックの表示"
+
+msgid "Old Password"
+msgstr "古いパスワード"
+
+msgid "New Password"
+msgstr "新しいパスワード"
+
+msgid "Confirm Password"
+msgstr "パスワードの確認"
+
+msgid "Change"
+msgstr "変更"
+
+msgid "Passwords do not match!"
+msgstr "パスワードが一致しません!"
+
+msgid "Continue"
+msgstr "続ける"
+
+msgid "Change Password"
+msgstr "ﾊﾟｽﾜｰﾄﾞ変更"
+
+msgid "Sound Volume"
+msgstr "音量"
+
+msgid "Exit to Menu"
+msgstr "タイトル"
+
+msgid "Exit to OS"
+msgstr "終了"
+
+msgid ""
+"Default Controls:\n"
+"- WASD: move\n"
+"- Space: jump/climb\n"
+"- Shift: sneak/go down\n"
+"- Q: drop item\n"
+"- I: inventory\n"
+"- Mouse: turn/look\n"
+"- Mouse left: dig/punch\n"
+"- Mouse right: place/use\n"
+"- Mouse wheel: select item\n"
+"- T: chat\n"
+msgstr ""
+"基本操作:\n"
+"WASD:移動\n"
+"ｽﾍﾟｰｽ:ｼﾞｬﾝﾌﾟ/登る\n"
+"ｼﾌﾄ:忍び歩き/降りる\n"
+"Q:ｱｲﾃﾑを落とす\n"
+"I:インベントリ\n"
+"ﾏｳｽ:見回す\n"
+"左ｸﾘｯｸ:掘る/ﾊﾟﾝﾁ\n"
+"右ｸﾘｯｸ:使う\n"
+"ﾏｳｽﾎｲｰﾙ:ｱｲﾃﾑ選択\n"
+"T:ﾁｬｯﾄ\n"
+
+msgid "Sound Volume: "
+msgstr "音量"
+
+msgid "Exit"
+msgstr "戻る"
+
+msgid "Left Button"
+msgstr "左ボタン"
+
+msgid "Middle Button"
+msgstr "中ボタン"
+
+msgid "Right Button"
+msgstr "右ボタン"
+
+msgid "X Button 1"
+msgstr "Xボタン1"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Clear"
+msgstr "消す"
+
+msgid "Return"
+msgstr "エンター"
+
+msgid "Tab"
+msgstr "タブ"
+
+msgid "X Button 2"
+msgstr "Xボタン2"
+
+msgid "Capital"
+msgstr "Caps Lock"
+
+msgid "Control"
+msgstr "コントロール"
+
+msgid "Kana"
+msgstr "かな"
+
+msgid "Menu"
+msgstr "メニュー"
+
+msgid "Pause"
+msgstr "ポーズ"
+
+msgid "Shift"
+msgstr "Shift"
+
+msgid "Convert"
+msgstr "変換"
+
+msgid "Escape"
+msgstr "Esc"
+
+msgid "Final"
+msgstr "Finalキー"
+
+msgid "Junja"
+msgstr "Junjaキー"
+
+msgid "Kanji"
+msgstr "半角/全角"
+
+msgid "Nonconvert"
+msgstr "無変換"
+
+msgid "End"
+msgstr "終了"
+
+msgid "Home"
+msgstr "Home"
+
+msgid "Mode Change"
+msgstr "モード変更"
+
+msgid "Next"
+msgstr "Page Down"
+
+msgid "Prior"
+msgstr "Page Up"
+
+msgid "Space"
+msgstr "スペース"
+
+msgid "Down"
+msgstr "下"
+
+msgid "Execute"
+msgstr "実行キー"
+
+msgid "Print"
+msgstr "印刷キー"
+
+msgid "Select"
+msgstr "選択キー"
+
+msgid "Up"
+msgstr "上"
+
+msgid "Help"
+msgstr "ヘルプ"
+
+msgid "Insert"
+msgstr "Insert"
+
+msgid "Snapshot"
+msgstr "Snapshot"
+
+msgid "Left Windows"
+msgstr "左Windows"
+
+msgid "Apps"
+msgstr "Apps"
+
+msgid "Numpad 0"
+msgstr "Numpad 0"
+
+msgid "Numpad 1"
+msgstr "Numpad 1"
+
+msgid "Right Windows"
+msgstr "右Windows"
+
+msgid "Sleep"
+msgstr "スリープ"
+
+msgid "Numpad 2"
+msgstr "Numpad 2"
+
+msgid "Numpad 3"
+msgstr "Numpad 3"
+
+msgid "Numpad 4"
+msgstr "Numpad 4"
+
+msgid "Numpad 5"
+msgstr "Numpad 5"
+
+msgid "Numpad 6"
+msgstr "Numpad 6"
+
+msgid "Numpad 7"
+msgstr "Numpad 7"
+
+msgid "Numpad *"
+msgstr "Numpad *"
+
+msgid "Numpad +"
+msgstr "Numpad +"
+
+msgid "Numpad -"
+msgstr "Numpad -"
+
+msgid "Numpad /"
+msgstr "Numpad /"
+
+msgid "Numpad 8"
+msgstr "Numpad 8"
+
+msgid "Numpad 9"
+msgstr "Numpad 9"
+
+msgid "Num Lock"
+msgstr "Num Lock"
+
+msgid "Scroll Lock"
+msgstr "Scroll Lock"
+
+msgid "Left Shift"
+msgstr "左Shift"
+
+msgid "Right Shift"
+msgstr "右Shift"
+
+msgid "Left Control"
+msgstr "左Ctrl"
+
+msgid "Left Menu"
+msgstr "左メニュー"
+
+msgid "Right Control"
+msgstr "右Ctrl"
+
+msgid "Right Menu"
+msgstr "右メニュー"
+
+msgid "Comma"
+msgstr "読点"
+
+msgid "Minus"
+msgstr "ー"
+
+msgid "Period"
+msgstr "."
+
+msgid "Plus"
+msgstr "プラス"
+
+msgid "Attn"
+msgstr ":"
+
+msgid "CrSel"
+msgstr "CrSel"
+
+msgid "Erase OEF"
+msgstr "Erase OEF"
+
+msgid "ExSel"
+msgstr "ExSel"
+
+msgid "OEM Clear"
+msgstr "OEM Clear"
+
+msgid "PA1"
+msgstr "PA1"
+
+msgid "Zoom"
+msgstr "ズーム"
+
+msgid "needs_fallback_font"
+msgstr "yes"
+
+msgid "Main Menu"
+msgstr "メインメニュー"
+
+msgid "No world selected and no address provided. Nothing to do."
+msgstr ""
+"ﾜｰﾙﾄﾞが選択できていないか、ｱﾄﾞﾚｽが入力されていません。そのため実行されませ"
+"ん。"
+
+msgid "Could not find or load game \""
+msgstr "読み込みか検索に失敗: \""
+
+msgid "Invalid gamespec."
+msgstr "無効なgamespecです"
+
+msgid "Connection error (timed out?)"
+msgstr "接続エラー(タイムアウト)"
+
+msgid "Bumpmapping"
+msgstr "ﾊﾞﾝﾌﾟﾏｯﾋﾟﾝｸﾞ"
+
+msgid "Generate Normalmaps"
+msgstr "法線ﾏｯﾋﾟﾝｸﾞ"
+
+msgid "Parallax Occlusion"
+msgstr "視差ｵｸﾙｰｼﾞｮﾝﾏｯﾋﾟﾝｸﾞ"
+
+msgid "Waving Water"
+msgstr "揺れる水"
+
+msgid "Waving Leaves"
+msgstr "揺れる葉"
+
+msgid "Waving Plants"
+msgstr "揺れる草花"
+
+msgid "GUI scale factor"
+msgstr "メニューの大きさ"
+
+msgid "Unsorted"
+msgstr "未分類"
+
+msgid "Search"
+msgstr "検索"
+
+msgid "Close store"
+msgstr "閉じる"
+
+msgid "Change Keys"
+msgstr "操作変更"
