@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 struct NoiseParams;
 class Mapgen;
-class MMVManip;
+class ManualMapVoxelManipulator;
 class PseudoRandom;
 class Schematic;
 
@@ -58,7 +58,7 @@ struct CutoffData {
 };
 #endif
 
-class Decoration : public GenElement, public NodeResolver {
+class Decoration : public GenElement {
 public:
 	INodeDefManager *ndef;
 
@@ -66,8 +66,6 @@ public:
 	int mapseed;
 	std::vector<content_t> c_place_on;
 	s16 sidelen;
-	s16 y_min;
-	s16 y_max;
 	float fill_ratio;
 	NoiseParams np;
 
@@ -78,13 +76,12 @@ public:
 	Decoration();
 	virtual ~Decoration();
 
-	virtual void resolveNodeNames(NodeResolveInfo *nri);
-
 	size_t placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
-	//size_t placeCutoffs(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
+	size_t placeCutoffs(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
 
-	virtual size_t generate(MMVManip *vm, PseudoRandom *pr, s16 max_y, v3s16 p) = 0;
+	virtual size_t generate(Mapgen *mg, PseudoRandom *pr, s16 max_y, v3s16 p) = 0;
 	virtual int getHeight() = 0;
+	virtual void dropResolverEntries(NodeResolver *resolver) {}
 };
 
 class DecoSimple : public Decoration {
@@ -95,11 +92,12 @@ public:
 	s16 deco_height_max;
 	s16 nspawnby;
 
-	virtual void resolveNodeNames(NodeResolveInfo *nri);
+	~DecoSimple() {}
 
-	bool canPlaceDecoration(MMVManip *vm, v3s16 p);
-	virtual size_t generate(MMVManip *vm, PseudoRandom *pr, s16 max_y, v3s16 p);
+	bool canPlaceDecoration(ManualMapVoxelManipulator *vm, v3s16 p);
+	virtual size_t generate(Mapgen *mg, PseudoRandom *pr, s16 max_y, v3s16 p);
 	virtual int getHeight();
+	virtual void dropResolverEntries(NodeResolver *resolver);
 };
 
 class DecoSchematic : public Decoration {
@@ -108,7 +106,9 @@ public:
 	Schematic *schematic;
 	std::string filename;
 
-	virtual size_t generate(MMVManip *vm, PseudoRandom *pr, s16 max_y, v3s16 p);
+	~DecoSchematic() {}
+
+	virtual size_t generate(Mapgen *mg, PseudoRandom *pr, s16 max_y, v3s16 p);
 	virtual int getHeight();
 };
 
@@ -144,7 +144,7 @@ public:
 
 	void clear();
 
-	size_t placeAllDecos(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax);
+	size_t placeAllDecos(Mapgen *mg, u32 seed, v3s16 nmin, v3s16 nmax);
 };
 
 #endif

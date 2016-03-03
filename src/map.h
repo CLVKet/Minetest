@@ -80,9 +80,9 @@ struct MapEditEvent
 
 	MapEditEvent():
 		type(MEET_OTHER),
-		n(CONTENT_AIR),
 		already_known_by_peer(0)
-	{ }
+	{
+	}
 
 	MapEditEvent * clone()
 	{
@@ -189,7 +189,7 @@ public:
 	MapBlock * getBlockNoCreateNoEx(v3s16 p);
 
 	/* Server overrides */
-	virtual MapBlock * emergeBlock(v3s16 p, bool create_blank=true)
+	virtual MapBlock * emergeBlock(v3s16 p, bool allow_generate=true)
 	{ return getBlockNoCreateNoEx(p); }
 
 	// Returns InvalidPositionException if not found
@@ -267,10 +267,9 @@ public:
 
 	virtual void save(ModifiedState save_level){assert(0);};
 
-	// Server implements these.
-	// Client leaves them as no-op.
+	// Server implements this.
+	// Client leaves it as no-op.
 	virtual bool saveBlock(MapBlock *block) { return false; };
-	virtual bool deleteBlock(v3s16 blockpos) { return false; };
 
 	/*
 		Updates usage timers and unloads unused blocks and sectors.
@@ -424,7 +423,7 @@ public:
 		- Create blank filled with CONTENT_IGNORE
 
 	*/
-	MapBlock *emergeBlock(v3s16 p, bool create_blank=true);
+	MapBlock * emergeBlock(v3s16 p, bool create_blank=true);
 
 	/*
 		Try to get a block.
@@ -499,8 +498,6 @@ public:
 	// Database version
 	void loadBlock(std::string *blob, v3s16 p3d, MapSector *sector, bool save_after_load=false);
 
-	bool deleteBlock(v3s16 blockpos);
-
 	void updateVManip(v3s16 pos);
 
 	// For debug printing
@@ -538,11 +535,11 @@ private:
 #define VMANIP_BLOCK_DATA_INEXIST     1
 #define VMANIP_BLOCK_CONTAINS_CIGNORE 2
 
-class MMVManip : public VoxelManipulator
+class ManualMapVoxelManipulator : public VoxelManipulator
 {
 public:
-	MMVManip(Map *map);
-	virtual ~MMVManip();
+	ManualMapVoxelManipulator(Map *map);
+	virtual ~ManualMapVoxelManipulator();
 
 	virtual void clear()
 	{
@@ -554,11 +551,11 @@ public:
 	{m_map = map;}
 
 	void initialEmerge(v3s16 blockpos_min, v3s16 blockpos_max,
-		bool load_if_inexistent = true);
+			bool load_if_inexistent = true);
 
 	// This is much faster with big chunks of generated data
 	void blitBackAll(std::map<v3s16, MapBlock*> * modified_blocks,
-		bool overwrite_generated = true);
+			bool overwrite_generated = true);
 
 	bool m_is_dirty;
 

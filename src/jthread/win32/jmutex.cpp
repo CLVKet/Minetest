@@ -26,33 +26,43 @@
 */
 #include <assert.h>
 #include "jthread/jmutex.h"
-#define UNUSED(expr) do { (void)(expr); } while (0)
+
 JMutex::JMutex()
 {
-	int mutex_init_retval = pthread_mutex_init(&mutex,NULL);
-	assert( mutex_init_retval == 0 );
-	UNUSED(mutex_init_retval);
+#ifdef JMUTEX_CRITICALSECTION
+	InitializeCriticalSection(&mutex);
+#else
+	mutex = CreateMutex(NULL,FALSE,NULL);
+	assert(mutex != NULL);
+#endif // JMUTEX_CRITICALSECTION
 }
 
 JMutex::~JMutex()
 {
-	int mutex_dextroy_retval = pthread_mutex_destroy(&mutex);
-	assert( mutex_dextroy_retval == 0 );
-	UNUSED(mutex_dextroy_retval);
+#ifdef JMUTEX_CRITICALSECTION
+	DeleteCriticalSection(&mutex);
+#else
+	CloseHandle(mutex);
+#endif // JMUTEX_CRITICALSECTION
 }
 
 int JMutex::Lock()
 {
-	int mutex_lock_retval = pthread_mutex_lock(&mutex);
-	assert( mutex_lock_retval == 0 );
-	return mutex_lock_retval;
-	UNUSED(mutex_lock_retval);
+#ifdef JMUTEX_CRITICALSECTION
+	EnterCriticalSection(&mutex);
+#else
+	WaitForSingleObject(mutex,INFINITE);
+#endif // JMUTEX_CRITICALSECTION
+	return 0;
 }
 
 int JMutex::Unlock()
 {
-	int mutex_unlock_retval = pthread_mutex_unlock(&mutex);
-	assert( mutex_unlock_retval == 0 );
-	return mutex_unlock_retval;
-	UNUSED(mutex_unlock_retval);
+#ifdef JMUTEX_CRITICALSECTION
+	LeaveCriticalSection(&mutex);
+#else
+	ReleaseMutex(mutex);
+#endif // JMUTEX_CRITICALSECTION
+	return 0;
 }
+

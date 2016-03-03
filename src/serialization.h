@@ -72,9 +72,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // Lowest supported serialization version
 #define SER_FMT_VER_LOWEST 0
 
-inline bool ser_ver_supported(s32 v) {
-	return v >= SER_FMT_VER_LOWEST && v <= SER_FMT_VER_HIGHEST_READ;
-}
+#define ser_ver_supported(v) (v >= SER_FMT_VER_LOWEST && v <= SER_FMT_VER_HIGHEST_READ)
 
 /*
 	Misc. serialization functions

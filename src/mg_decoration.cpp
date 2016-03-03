@@ -44,8 +44,7 @@ DecorationManager::DecorationManager(IGameDef *gamedef) :
 }
 
 
-size_t DecorationManager::placeAllDecos(Mapgen *mg, u32 blockseed,
-	v3s16 nmin, v3s16 nmax)
+size_t DecorationManager::placeAllDecos(Mapgen *mg, u32 seed, v3s16 nmin, v3s16 nmax)
 {
 	size_t nplaced = 0;
 
@@ -54,8 +53,8 @@ size_t DecorationManager::placeAllDecos(Mapgen *mg, u32 blockseed,
 		if (!deco)
 			continue;
 
-		nplaced += deco->placeDeco(mg, blockseed, nmin, nmax);
-		blockseed++;
+		nplaced += deco->placeDeco(mg, seed, nmin, nmax);
+		seed++;
 	}
 
 	return nplaced;
@@ -66,7 +65,10 @@ void DecorationManager::clear()
 {
 	for (size_t i = 0; i < m_elements.size(); i++) {
 		Decoration *deco = (Decoration *)m_elements[i];
-		delete deco;
+		if (!deco)
+			continue;
+
+		deco->dropResolverEntries(m_resolver);
 	}
 	m_elements.clear();
 }
@@ -86,12 +88,6 @@ Decoration::Decoration()
 
 Decoration::~Decoration()
 {
-}
-
-
-void Decoration::resolveNodeNames(NodeResolveInfo *nri)
-{
-	m_ndef->getIdsFromResolveInfo(nri, c_place_on);
 }
 
 
@@ -141,8 +137,7 @@ size_t Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 					mg->heightmap[mapindex] :
 					mg->findGroundLevel(v2s16(x, z), nmin.Y, nmax.Y);
 
-			if (y < nmin.Y || y > nmax.Y ||
-				y < y_min  || y > y_max)
+			if (y < nmin.Y || y > nmax.Y)
 				continue;
 
 			int height = getHeight();
@@ -168,7 +163,7 @@ size_t Decoration::placeDeco(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 			}
 
 			v3s16 pos(x, y, z);
-			if (generate(mg->vm, &ps, max_y, pos))
+			if (generate(mg, &ps, max_y, pos))
 				mg->gennotify.addEvent(GENNOTIFY_DECORATION, pos, id);
 		}
 	}
@@ -234,15 +229,7 @@ void Decoration::placeCutoffs(Mapgen *mg, u32 blockseed, v3s16 nmin, v3s16 nmax)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void DecoSimple::resolveNodeNames(NodeResolveInfo *nri)
-{
-	Decoration::resolveNodeNames(nri);
-	m_ndef->getIdsFromResolveInfo(nri, c_decos);
-	m_ndef->getIdsFromResolveInfo(nri, c_spawnby);
-}
-
-
-bool DecoSimple::canPlaceDecoration(MMVManip *vm, v3s16 p)
+bool DecoSimple::canPlaceDecoration(ManualMapVoxelManipulator *vm, v3s16 p)
 {
 	// Don't bother if there aren't any decorations to place
 	if (c_decos.size() == 0)
@@ -287,8 +274,10 @@ bool DecoSimple::canPlaceDecoration(MMVManip *vm, v3s16 p)
 }
 
 
-size_t DecoSimple::generate(MMVManip *vm, PseudoRandom *pr, s16 max_y, v3s16 p)
+size_t DecoSimple::generate(Mapgen *mg, PseudoRandom *pr, s16 max_y, v3s16 p)
 {
+	ManualMapVoxelManipulator *vm = mg->vm;
+
 	if (!canPlaceDecoration(vm, p))
 		return 0;
 
@@ -321,20 +310,26 @@ int DecoSimple::getHeight()
 }
 
 
+void DecoSimple::dropResolverEntries(NodeResolver *resolver)
+{
+	resolver->cancelNodeList(&c_decos);
+	resolver->cancelNodeList(&c_spawnby);
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 
-size_t DecoSchematic::generate(MMVManip *vm, PseudoRandom *pr, s16 max_y, v3s16 p)
+size_t DecoSchematic::generate(Mapgen *mg, PseudoRandom *pr, s16 max_y, v3s16 p)
 {
+	ManualMapVoxelManipulator *vm = mg->vm;
+
 	if (flags & DECO_PLACE_CENTER_X)
 		p.X -= (schematic->size.X + 1) / 2;
 	if (flags & DECO_PLACE_CENTER_Y)
 		p.Y -= (schematic->size.Y + 1) / 2;
 	if (flags & DECO_PLACE_CENTER_Z)
 		p.Z -= (schematic->size.Z + 1) / 2;
-
-	if (!vm->m_area.contains(p))
-		return 0;
 
 	u32 vi = vm->m_area.index(p);
 	content_t c = vm->m_data[vi].getContent();
@@ -344,7 +339,7 @@ size_t DecoSchematic::generate(MMVManip *vm, PseudoRandom *pr, s16 max_y, v3s16 
 	Rotation rot = (rotation == ROTATE_RAND) ?
 		(Rotation)pr->range(ROTATE_0, ROTATE_270) : rotation;
 
-	schematic->blitToVManip(p, vm, rot, false, m_ndef);
+	schematic->blitToVManip(p, vm, rot, false, mg->ndef);
 
 	return 1;
 }

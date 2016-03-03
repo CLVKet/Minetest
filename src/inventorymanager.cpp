@@ -727,9 +727,9 @@ void ICraftAction::apply(InventoryManager *mgr, ServerActiveObject *player, IGam
 	ItemStack crafted;
 	ItemStack craftresultitem;
 	int count_remaining = count;
-	getCraftingResult(inv_craft, crafted, false, gamedef);
+	bool found = getCraftingResult(inv_craft, crafted, false, gamedef);
 	PLAYER_TO_SA(player)->item_CraftPredict(crafted, player, list_craft, craft_inv);
-	bool found = !crafted.empty();
+	found = !crafted.empty();
 
 	while(found && list_craftresult->itemFits(0, crafted))
 	{

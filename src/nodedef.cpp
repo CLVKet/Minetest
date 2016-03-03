@@ -227,6 +227,7 @@ void ContentFeatures::reset()
 	liquid_alternative_source = "";
 	liquid_viscosity = 0;
 	liquid_renewable = true;
+	freezemelt = "";
 	liquid_range = LIQUID_LEVEL_MAX+1;
 	drowning = 0;
 	light_source = 0;
@@ -401,18 +402,7 @@ public:
 	virtual void updateTextures(IGameDef *gamedef);
 	void serialize(std::ostream &os, u16 protocol_version);
 	void deSerialize(std::istream &is);
-
-	inline virtual bool getNodeRegistrationStatus() const;
-	inline virtual void setNodeRegistrationStatus(bool completed);
-
-	virtual void pendNodeResolve(NodeResolveInfo *nri);
-	virtual void cancelNodeResolve(NodeResolver *resolver);
-	virtual void runNodeResolverCallbacks();
-
-	virtual bool getIdFromResolveInfo(NodeResolveInfo *nri,
-		const std::string &node_alt, content_t c_fallback, content_t &result);
-	virtual bool getIdsFromResolveInfo(NodeResolveInfo *nri,
-		std::vector<content_t> &result);
+	virtual NodeResolver *getResolver();
 
 private:
 	void addNameIdMapping(content_t i, std::string name);
@@ -442,15 +432,13 @@ private:
 	// Next possibly free id
 	content_t m_next_id;
 
-	// List of node strings and node resolver callbacks to perform
-	std::list<NodeResolveInfo *> m_pending_node_lookups;
-
-	// True when all nodes have been registered
-	bool m_node_registration_complete;
+	// NodeResolver to queue pending node resolutions
+	NodeResolver m_resolver;
 };
 
 
-CNodeDefManager::CNodeDefManager()
+CNodeDefManager::CNodeDefManager() :
+	m_resolver(this)
 {
 	clear();
 }
@@ -477,14 +465,6 @@ void CNodeDefManager::clear()
 	m_name_id_mapping_with_aliases.clear();
 	m_group_to_items.clear();
 	m_next_id = 0;
-
-	m_node_registration_complete = false;
-	for (std::list<NodeResolveInfo *>::iterator
-			it = m_pending_node_lookups.begin();
-			it != m_pending_node_lookups.end();
-			++it)
-		delete *it;
-	m_pending_node_lookups.clear();
 
 	u32 initial_length = 0;
 	initial_length = MYMAX(initial_length, CONTENT_UNKNOWN + 1);
@@ -1055,6 +1035,12 @@ void CNodeDefManager::addNameIdMapping(content_t i, std::string name)
 }
 
 
+NodeResolver *CNodeDefManager::getResolver()
+{
+	return &m_resolver;
+}
+
+
 IWritableNodeDefManager *createNodeDefManager()
 {
 	return new CNodeDefManager();
@@ -1281,129 +1267,166 @@ void ContentFeatures::deSerializeOld(std::istream &is, int version)
 	}
 }
 
+/*
+	NodeResolver
+*/
 
-inline bool CNodeDefManager::getNodeRegistrationStatus() const
+NodeResolver::NodeResolver(INodeDefManager *ndef)
 {
-	return m_node_registration_complete;
+	m_ndef = ndef;
+	m_is_node_registration_complete = false;
 }
 
 
-inline void CNodeDefManager::setNodeRegistrationStatus(bool completed)
+NodeResolver::~NodeResolver()
 {
-	m_node_registration_complete = completed;
-}
-
-
-void CNodeDefManager::pendNodeResolve(NodeResolveInfo *nri)
-{
-	nri->resolver->m_ndef = this;
-	if (m_node_registration_complete) {
-		nri->resolver->resolveNodeNames(nri);
-		nri->resolver->m_lookup_done = true;
+	while (!m_pending_contents.empty()) {
+		NodeResolveInfo *nri = m_pending_contents.front();
+		m_pending_contents.pop_front();
 		delete nri;
+	}
+}
+
+
+int NodeResolver::addNode(const std::string &n_wanted, const std::string &n_alt,
+	content_t c_fallback, content_t *content)
+{
+	if (m_is_node_registration_complete) {
+		if (m_ndef->getId(n_wanted, *content))
+			return NR_STATUS_SUCCESS;
+
+		if (n_alt == "" || !m_ndef->getId(n_alt, *content)) {
+			*content = c_fallback;
+			return NR_STATUS_FAILURE;
+		}
+
+		return NR_STATUS_SUCCESS;
 	} else {
-		m_pending_node_lookups.push_back(nri);
+		NodeResolveInfo *nfi = new NodeResolveInfo;
+		nfi->n_wanted   = n_wanted;
+		nfi->n_alt      = n_alt;
+		nfi->c_fallback = c_fallback;
+		nfi->output     = content;
+
+		m_pending_contents.push_back(nfi);
+
+		return NR_STATUS_PENDING;
 	}
 }
 
 
-void CNodeDefManager::cancelNodeResolve(NodeResolver *resolver)
+int NodeResolver::addNodeList(const std::string &nodename,
+	std::vector<content_t> *content_vec)
 {
+	if (m_is_node_registration_complete) {
+		std::set<content_t> idset;
+		std::set<content_t>::iterator it;
+
+		m_ndef->getIds(nodename, idset);
+		for (it = idset.begin(); it != idset.end(); ++it)
+			content_vec->push_back(*it);
+
+		return idset.size() ? NR_STATUS_SUCCESS : NR_STATUS_FAILURE;
+	} else {
+		m_pending_content_vecs.push_back(
+			std::make_pair(nodename, content_vec));
+		return NR_STATUS_PENDING;
+	}
+}
+
+
+bool NodeResolver::cancelNode(content_t *content)
+{
+	bool found = false;
+
 	for (std::list<NodeResolveInfo *>::iterator
-			it = m_pending_node_lookups.begin();
-			it != m_pending_node_lookups.end();
+			it = m_pending_contents.begin();
+			it != m_pending_contents.end();
 			++it) {
-		NodeResolveInfo *nri = *it;
-		if (resolver == nri->resolver) {
-			it = m_pending_node_lookups.erase(it);
-			delete nri;
+		NodeResolveInfo *nfi = *it;
+		if (nfi->output == content) {
+			it = m_pending_contents.erase(it);
+			delete nfi;
+			found = true;
 		}
 	}
+
+	return found;
 }
 
 
-void CNodeDefManager::runNodeResolverCallbacks()
+int NodeResolver::cancelNodeList(std::vector<content_t> *content_vec)
 {
-	while (!m_pending_node_lookups.empty()) {
-		NodeResolveInfo *nri = m_pending_node_lookups.front();
-		m_pending_node_lookups.pop_front();
-		nri->resolver->resolveNodeNames(nri);
-		nri->resolver->m_lookup_done = true;
+	int num_canceled = 0;
+
+	for (ContentVectorResolveList::iterator
+			it = m_pending_content_vecs.begin();
+			it != m_pending_content_vecs.end();
+			++it) {
+		if (it->second == content_vec) {
+			it = m_pending_content_vecs.erase(it);
+			num_canceled++;
+		}
+	}
+
+	return num_canceled;
+}
+
+
+int NodeResolver::resolveNodes()
+{
+	int num_failed = 0;
+
+	//// Resolve pending single node name -> content ID mappings
+	while (!m_pending_contents.empty()) {
+		NodeResolveInfo *nri = m_pending_contents.front();
+		m_pending_contents.pop_front();
+
+		bool success = true;
+		if (!m_ndef->getId(nri->n_wanted, *nri->output)) {
+			success = (nri->n_alt != "") ?
+				m_ndef->getId(nri->n_alt, *nri->output) : false;
+		}
+
+		if (!success) {
+			*nri->output = nri->c_fallback;
+			num_failed++;
+			errorstream << "NodeResolver::resolveNodes():  Failed to "
+				"resolve '" << nri->n_wanted;
+			if (nri->n_alt != "")
+				errorstream << "' and '" << nri->n_alt;
+			errorstream << "'" << std::endl;
+		}
+
 		delete nri;
 	}
-}
 
+	//// Resolve pending node names and add to content_t vector
+	while (!m_pending_content_vecs.empty()) {
+		std::pair<std::string, std::vector<content_t> *> item =
+			m_pending_content_vecs.front();
+		m_pending_content_vecs.pop_front();
 
-bool CNodeDefManager::getIdFromResolveInfo(NodeResolveInfo *nri,
-	const std::string &node_alt, content_t c_fallback, content_t &result)
-{
-	if (nri->nodenames.empty()) {
-		result = c_fallback;
-		errorstream << "Resolver empty nodename list" << std::endl;
-		return false;
-	}
+		std::string &name = item.first;
+		std::vector<content_t> *output = item.second;
 
-	content_t c;
-	std::string name = nri->nodenames.front();
-	nri->nodenames.pop_front();
+		std::set<content_t> idset;
+		std::set<content_t>::iterator it;
 
-	bool success = getId(name, c);
-	if (!success && node_alt != "") {
-		name = node_alt;
-		success = getId(name, c);
-	}
+		m_ndef->getIds(name, idset);
+		for (it = idset.begin(); it != idset.end(); ++it)
+			output->push_back(*it);
 
-	if (!success) {
-		errorstream << "Resolver: Failed to resolve node name '" << name
-			<< "'." << std::endl;
-		c = c_fallback;
-	}
-
-	result = c;
-	return success;
-}
-
-
-bool CNodeDefManager::getIdsFromResolveInfo(NodeResolveInfo *nri,
-	std::vector<content_t> &result)
-{
-	bool success = true;
-
-	if (nri->nodelistinfo.empty()) {
-		errorstream << "Resolver: Empty nodelistinfo list" << std::endl;
-		return false;
-	}
-
-	NodeListInfo listinfo = nri->nodelistinfo.front();
-	nri->nodelistinfo.pop_front();
-
-	while (listinfo.length--) {
-		if (nri->nodenames.empty()) {
-			errorstream << "Resolver: Empty nodename list" << std::endl;
-			return false;
-		}
-
-		content_t c;
-		std::string name = nri->nodenames.front();
-		nri->nodenames.pop_front();
-
-		if (name.substr(0,6) != "group:") {
-			if (getId(name, c)) {
-				result.push_back(c);
-			} else if (listinfo.all_required) {
-				errorstream << "Resolver: Failed to resolve node name '" << name
-					<< "'." << std::endl;
-				result.push_back(listinfo.c_fallback);
-				success = false;
-			}
-		} else {
-			std::set<content_t> cids;
-			std::set<content_t>::iterator it;
-			getIds(name, cids);
-			for (it = cids.begin(); it != cids.end(); ++it)
-				result.push_back(*it);
+		if (idset.empty()) {
+			num_failed++;
+			errorstream << "NodeResolver::resolveNodes():  Failed to "
+				"resolve '" << name << "'" << std::endl;
 		}
 	}
 
-	return success;
+	//// Mark node registration as complete so future resolve
+	//// requests are satisfied immediately
+	m_is_node_registration_complete = true;
+
+	return num_failed;
 }

@@ -20,13 +20,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <errno.h>
 #include <sys/time.h>
 #include "jthread/jsemaphore.h"
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 #include <unistd.h>
 #endif
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 #undef sem_t
 #undef sem_init
 #undef sem_wait
@@ -42,9 +42,9 @@ pthread_mutex_t semcount_mutex;
 
 JSemaphore::JSemaphore() {
 	int sem_init_retval = sem_init(&m_semaphore,0,0);
-	//assert(sem_init_retval == 0);
+	assert(sem_init_retval == 0);
 	UNUSED(sem_init_retval);
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 	semcount = 0;
 #endif
 }
@@ -53,27 +53,27 @@ JSemaphore::~JSemaphore() {
 	int sem_destroy_retval = sem_destroy(&m_semaphore);
 #ifdef __ANDROID__
 // WORKAROUND for broken bionic semaphore implementation!
-//	assert(
-//			(sem_destroy_retval == 0) ||
-//			(errno == EBUSY)
-//		);
+	assert(
+			(sem_destroy_retval == 0) ||
+			(errno == EBUSY)
+		);
 #else
-	//assert(sem_destroy_retval == 0);
+	assert(sem_destroy_retval == 0);
 #endif
 	UNUSED(sem_destroy_retval);
 }
 
 JSemaphore::JSemaphore(int initval) {
 	int sem_init_retval = sem_init(&m_semaphore,0,initval);
-	//assert(sem_init_retval == 0);
+	assert(sem_init_retval == 0);
 	UNUSED(sem_init_retval);
 }
 
 void JSemaphore::Post() {
 	int sem_post_retval = sem_post(&m_semaphore);
-	//assert(sem_post_retval == 0);
+	assert(sem_post_retval == 0);
 	UNUSED(sem_post_retval);
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 	pthread_mutex_lock(&semcount_mutex);
 	semcount++;
 	pthread_mutex_unlock(&semcount_mutex);
@@ -82,9 +82,9 @@ void JSemaphore::Post() {
 
 void JSemaphore::Wait() {
 	int sem_wait_retval = sem_wait(&m_semaphore);
-	//assert(sem_wait_retval == 0);
+	assert(sem_wait_retval == 0);
 	UNUSED(sem_wait_retval);
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 	pthread_mutex_lock(&semcount_mutex);
 	semcount--;
 	pthread_mutex_unlock(&semcount_mutex);
@@ -92,7 +92,7 @@ void JSemaphore::Wait() {
 }
 
 bool JSemaphore::Wait(unsigned int time_ms) {
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 	mach_timespec_t waittime;
 	waittime.tv_sec = time_ms / 1000;
 	waittime.tv_nsec = 1000000 * (time_ms % 1000);
@@ -102,18 +102,18 @@ bool JSemaphore::Wait(unsigned int time_ms) {
 	struct timeval now;
 
 	if (gettimeofday(&now, NULL) == -1) {
-		//assert("Unable to get time by clock_gettime!" == 0);
+		assert("Unable to get time by clock_gettime!" == 0);
 		return false;
 	}
 
-#if !(defined(__MACH__) && defined(__APPLE__))
+#ifndef __MACH__
 	waittime.tv_nsec = ((time_ms % 1000) * 1000 * 1000) + (now.tv_usec * 1000);
 	waittime.tv_sec  = (time_ms / 1000) + (waittime.tv_nsec / (1000*1000*1000)) + now.tv_sec;
 	waittime.tv_nsec %= 1000*1000*1000;
 #endif
 
 	errno = 0;
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 	int sem_wait_retval = semaphore_timedwait(m_semaphore, waittime);
 	if (sem_wait_retval == KERN_OPERATION_TIMED_OUT) {
 		errno = ETIMEDOUT;
@@ -128,7 +128,7 @@ bool JSemaphore::Wait(unsigned int time_ms) {
 
 	if (sem_wait_retval == 0)
 	{
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 		pthread_mutex_lock(&semcount_mutex);
 		semcount--;
 		pthread_mutex_unlock(&semcount_mutex);
@@ -136,7 +136,7 @@ bool JSemaphore::Wait(unsigned int time_ms) {
 		return true;
 	}
 	else {
-		//assert((errno == ETIMEDOUT) || (errno == EINTR));
+		assert((errno == ETIMEDOUT) || (errno == EINTR));
 		return false;
 	}
 	return sem_wait_retval == 0 ? true : false;
@@ -144,7 +144,7 @@ bool JSemaphore::Wait(unsigned int time_ms) {
 
 int JSemaphore::GetValue() {
 	int retval = 0;
-#if defined(__MACH__) && defined(__APPLE__)
+#ifdef __MACH__
 	pthread_mutex_lock(&semcount_mutex);
 	retval = semcount;
 	pthread_mutex_unlock(&semcount_mutex);

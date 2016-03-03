@@ -108,7 +108,6 @@ void set_default_settings(Settings *settings)
 	settings->setDefault("new_style_leaves", "true");
 	settings->setDefault("connected_glass", "false");
 	settings->setDefault("smooth_lighting", "true");
-	settings->setDefault("display_gamma", "1.8");
 	settings->setDefault("texture_path", "");
 	settings->setDefault("shader_path", "");
 	settings->setDefault("video_driver", "opengl");
@@ -131,7 +130,6 @@ void set_default_settings(Settings *settings)
 	settings->setDefault("enable_node_highlighting", "false");
 	settings->setDefault("crosshair_color", "(255,255,255)");
 	settings->setDefault("crosshair_alpha", "255");
-	settings->setDefault("hud_scaling", "1.0");
 	settings->setDefault("gui_scaling", "1.0");
 	settings->setDefault("mouse_sensitivity", "0.2");
 	settings->setDefault("enable_sound", "true");
@@ -159,7 +157,6 @@ void set_default_settings(Settings *settings)
 	settings->setDefault("water_wave_speed", "5.0");
 	settings->setDefault("enable_waving_leaves", "false");
 	settings->setDefault("enable_waving_plants", "false");
-	settings->setDefault("ambient_occlusion_gamma", "2.2");
 	settings->setDefault("enable_shaders", "true");
 	settings->setDefault("repeat_rightclick_time", "0.25");
 	settings->setDefault("enable_particles", "true");
@@ -328,10 +325,10 @@ void set_default_settings(Settings *settings)
 	float x_inches = ((double) porting::getDisplaySize().X /
 			(160 * porting::getDisplayDensity()));
 	if (x_inches  < 3.5) {
-		settings->setDefault("hud_scaling", "0.6");
+		settings->setDefault("gui_scaling", "0.6");
 	}
 	else if (x_inches < 4.5) {
-		settings->setDefault("hud_scaling", "0.7");
+		settings->setDefault("gui_scaling", "0.7");
 	}
 	settings->setDefault("curl_verify_cert","false");
 #else
@@ -347,3 +344,4 @@ void override_default_settings(Settings *settings, Settings *from)
 		settings->setDefault(name, from->get(name));
 	}
 }
+

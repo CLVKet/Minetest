@@ -776,7 +776,7 @@ protected:
 
 static OptionList allowed_options;
 
-int ios_main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	int retval;
 
@@ -1512,11 +1512,11 @@ static bool migrate_database(const GameParams &game_params, const Settings &cmd_
 	if (migrate_to == "sqlite3")
 		new_db = new Database_SQLite3(&(ServerMap&)server->getMap(),
 				game_params.world_path);
-#if USE_LEVELDB
-	else if (migrate_to == "leveldb")
-		new_db = new Database_LevelDB(&(ServerMap&)server->getMap(),
-				game_params.world_path);
-#endif
+//#if USE_LEVELDB
+//	else if (migrate_to == "leveldb")
+//		new_db = new Database_LevelDB(&(ServerMap&)server->getMap(),
+//				game_params.world_path);
+//#endif
 #if USE_REDIS
 	else if (migrate_to == "redis")
 		new_db = new Database_Redis(&(ServerMap&)server->getMap(),
@@ -1859,10 +1859,6 @@ bool ClientLauncher::launch_game(std::wstring *error_message,
 	if (!skip_main_menu) {
 		main_menu(&menudata);
 
-		// Skip further loading if there was an exit signal.
-		if (*porting::signal_handler_killstatus())
-			return false;
-
 		address = menudata.address;
 		int newport = stoi(menudata.port);
 		if (newport != 0)
@@ -1871,6 +1867,7 @@ bool ClientLauncher::launch_game(std::wstring *error_message,
 		simple_singleplayer_mode = menudata.simple_singleplayer_mode;
 
 		std::vector<WorldSpec> worldspecs = getAvailableWorlds();
+		worldspecs = getAvailableWorlds();
 
 		if (menudata.selected_world >= 0
 				&& menudata.selected_world < (int)worldspecs.size()) {
@@ -1998,6 +1995,22 @@ void ClientLauncher::main_menu(MainMenuData *menudata)
 
 bool ClientLauncher::create_engine_device(int log_level)
 {
+	static const char *driverids[] = {
+		"null",
+		"software",
+		"burningsvideo",
+		"direct3d8",
+		"direct3d9",
+		"opengl"
+#ifdef _IRR_COMPILE_WITH_OGLES1_
+		,"ogles1"
+#endif
+#ifdef _IRR_COMPILE_WITH_OGLES2_
+		,"ogles2"
+#endif
+		,"invalid"
+	};
+
 	static const irr::ELOG_LEVEL irr_log_level[5] = {
 		ELL_NONE,
 		ELL_ERROR,
@@ -2022,20 +2035,19 @@ bool ClientLauncher::create_engine_device(int log_level)
 
 	// Determine driver
 	video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
+
 	std::string driverstring = g_settings->get("video_driver");
-	std::vector<video::E_DRIVER_TYPE> drivers
-		= porting::getSupportedVideoDrivers();
-	u32 i;
-	for (i = 0; i != drivers.size(); i++) {
-		if (!strcasecmp(driverstring.c_str(),
-			porting::getVideoDriverName(drivers[i]))) {
-			driverType = drivers[i];
+	for (size_t i = 0; i < sizeof driverids / sizeof driverids[0]; i++) {
+		if (strcasecmp(driverstring.c_str(), driverids[i]) == 0) {
+			driverType = (video::E_DRIVER_TYPE) i;
 			break;
 		}
-	}
-	if (i == drivers.size()) {
-		errorstream << "Invalid video_driver specified; "
-			"defaulting to opengl" << std::endl;
+
+		if (strcasecmp("invalid", driverids[i]) == 0) {
+			errorstream << "WARNING: Invalid video_driver specified;"
+			            << " defaulting to opengl" << std::endl;
+			break;
+		}
 	}
 
 	SIrrlichtCreationParameters params = SIrrlichtCreationParameters();

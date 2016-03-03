@@ -27,18 +27,16 @@
 
 #include "jthread/jthread.h"
 #include <assert.h>
-#include <sys/time.h>
-#include <time.h>
-#include <stdlib.h>
-
 #define UNUSED(expr) do { (void)(expr); } while (0)
+#ifndef _WIN32_WCE
+	#include <process.h>
+#endif // _WIN32_WCE
 
 JThread::JThread()
 {
 	retval = NULL;
 	requeststop = false;
 	running = false;
-	started = false;
 }
 
 JThread::~JThread()
@@ -47,81 +45,54 @@ JThread::~JThread()
 }
 
 void JThread::Wait() {
-	void* status;
-	if (started) {
-		int pthread_join_retval = pthread_join(threadid,&status);
-		assert(pthread_join_retval == 0);
-		UNUSED(pthread_join_retval);
-		started = false;
+	if (running)
+	{
+		WaitForSingleObject(threadhandle, INFINITE);
 	}
 }
 
 int JThread::Start()
 {
-	int status;
-
 	if (running)
 	{
 		return ERR_JTHREAD_ALREADYRUNNING;
 	}
 	requeststop = false;
 
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	//pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
-
 	continuemutex.Lock();
-	status = pthread_create(&threadid,&attr,TheThread,this);
-	pthread_attr_destroy(&attr);
-	if (status != 0)
+#ifndef _WIN32_WCE
+	threadhandle = (HANDLE)_beginthreadex(NULL,0,TheThread,this,0,&threadid);
+#else
+	threadhandle = CreateThread(NULL,0,TheThread,this,0,&threadid);
+#endif // _WIN32_WCE
+	if (threadhandle == NULL)
 	{
 		continuemutex.Unlock();
 		return ERR_JTHREAD_CANTSTARTTHREAD;
 	}
 
 	/* Wait until 'running' is set */
-
 	while (!running)
 	{
-		struct timespec req,rem;
-
-		req.tv_sec = 0;
-		req.tv_nsec = 1000000;
-		nanosleep(&req,&rem);
+		Sleep(1);
 	}
-	started = true;
 
 	continuemutex.Unlock();
 
 	continuemutex2.Lock();
 	continuemutex2.Unlock();
+
 	return 0;
 }
 
 int JThread::Kill()
 {
-	void* status;
 	if (!running)
 	{
-		if (started) {
-			int pthread_join_retval = pthread_join(threadid,&status);
-			assert(pthread_join_retval == 0);
-			UNUSED(pthread_join_retval);
-			started = false;
-		}
 		return ERR_JTHREAD_NOTRUNNING;
 	}
-#ifdef __ANDROID__
-	pthread_kill(threadid, SIGKILL);
-#else
-	pthread_cancel(threadid);
-#endif
-	if (started) {
-		int pthread_join_retval = pthread_join(threadid,&status);
-		assert(pthread_join_retval == 0);
-		UNUSED(pthread_join_retval);
-		started = false;
-	}
+	TerminateThread(threadhandle,0);
+	CloseHandle(threadhandle);
 	running = false;
 	return 0;
 }
@@ -135,16 +106,19 @@ void *JThread::GetReturnValue()
 	} else {
 		val = retval;
 	}
-
 	return val;
 }
 
 bool JThread::IsSameThread()
 {
-	return pthread_equal(pthread_self(), threadid);
+	return GetCurrentThreadId() == threadid;
 }
 
-void *JThread::TheThread(void *param)
+#ifndef _WIN32_WCE
+UINT __stdcall JThread::TheThread(void *param)
+#else
+DWORD WINAPI JThread::TheThread(void *param)
+#endif // _WIN32_WCE
 {
 	JThread *jthread;
 	void *ret;
@@ -160,8 +134,9 @@ void *JThread::TheThread(void *param)
 	ret = jthread->Thread();
 
 	jthread->running = false;
-
-	return NULL;
+	jthread->retval = ret;
+	CloseHandle(jthread->threadhandle);
+	return 0;
 }
 
 void JThread::ThreadStarted()

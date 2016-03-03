@@ -31,7 +31,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "filesys.h"
 #include "convert_json.h"
 #include "serverlist.h"
-#include "emerge.h"
 #include "sound.h"
 #include "settings.h"
 #include "main.h" // for g_settings
@@ -690,25 +689,6 @@ int ModApiMainMenu::l_set_topleft_text(lua_State *L)
 }
 
 /******************************************************************************/
-int ModApiMainMenu::l_get_mapgen_names(lua_State *L)
-{
-	lua_newtable(L);
-
-	std::list<const char *> names;
-	EmergeManager::getMapgenNames(names);
-
-	int i = 1;
-	for (std::list<const char *>::const_iterator
-			it = names.begin(); it != names.end(); ++it) {
-		lua_pushstring(L, *it);
-		lua_rawseti(L, -2, i++);
-	}
-
-	return 1;
-}
-
-
-/******************************************************************************/
 int ModApiMainMenu::l_get_modpath(lua_State *L)
 {
 	std::string modpath
@@ -1025,21 +1005,28 @@ int ModApiMainMenu::l_download_file(lua_State *L)
 /******************************************************************************/
 int ModApiMainMenu::l_get_video_drivers(lua_State *L)
 {
-	std::vector<irr::video::E_DRIVER_TYPE> drivers
-		= porting::getSupportedVideoDrivers();
-
+	static const char* drivernames[] = {
+		"NULL Driver",
+		"Software",
+		"Burningsvideo",
+		"Direct3D 8",
+		"Direct3D 9",
+		"OpenGL",
+		"OGLES1",
+		"OGLES2"
+	};
+	unsigned int index = 1;
 	lua_newtable(L);
-	for (u32 i = 0; i != drivers.size(); i++) {
-		const char *name  = porting::getVideoDriverName(drivers[i]);
-		const char *fname = porting::getVideoDriverFriendlyName(drivers[i]);
+	int top = lua_gettop(L);
 
-		lua_newtable(L);
-		lua_pushstring(L, name);
-		lua_setfield(L, -2, "name");
-		lua_pushstring(L, fname);
-		lua_setfield(L, -2, "friendly_name");
-
-		lua_rawseti(L, -2, i + 1);
+	for (unsigned int i = irr::video::EDT_SOFTWARE;
+			i < MYMIN(irr::video::EDT_COUNT, (sizeof(drivernames)/sizeof(drivernames[0])));
+			i++) {
+		if (irr::IrrlichtDevice::isDriverSupported((irr::video::E_DRIVER_TYPE) i)) {
+			lua_pushnumber(L,index++);
+			lua_pushstring(L,drivernames[i]);
+			lua_settable(L, top);
+		}
 	}
 
 	return 1;
@@ -1120,7 +1107,6 @@ void ModApiMainMenu::Initialize(lua_State *L, int top)
 	API_FCT(delete_favorite);
 	API_FCT(set_background);
 	API_FCT(set_topleft_text);
-	API_FCT(get_mapgen_names);
 	API_FCT(get_modpath);
 	API_FCT(get_gamepath);
 	API_FCT(get_texturepath);
@@ -1151,7 +1137,6 @@ void ModApiMainMenu::InitializeAsync(AsyncEngine& engine)
 	ASYNC_API_FCT(get_worlds);
 	ASYNC_API_FCT(get_games);
 	ASYNC_API_FCT(get_favorites);
-	ASYNC_API_FCT(get_mapgen_names);
 	ASYNC_API_FCT(get_modpath);
 	ASYNC_API_FCT(get_gamepath);
 	ASYNC_API_FCT(get_texturepath);

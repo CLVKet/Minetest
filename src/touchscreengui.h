@@ -3,7 +3,7 @@ Copyright (C) 2014 sapier
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation; either version 2.1 of the License, or
+the Free Software Foundation; either version 3.0 of the License, or
 (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -29,33 +29,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "game.h"
 #include "tile.h"
 
+//#define ENABLE_ANDROID_NOCLIP
+
 using namespace irr;
 using namespace irr::core;
 using namespace irr::gui;
 
 typedef enum {
-	forward_id = 0,
-	backward_id,
-	left_id,
-	right_id,
-	inventory_id,
-	drop_id,
-	jump_id,
-	crunch_id,
-	fly_id,
-	noclip_id,
-	fast_id,
-	debug_id,
-	chat_id,
-	camera_id,
-	range_id,
-	after_last_element_id
+    forward_id = 0,
+    backward_id,
+    left_id,
+    right_id,
+    inventory_id,
+    drop_id,
+    jump_id,
+    crunch_id,
+    fly_id,
+    noclip_id,
+    fast_id,
+    debug_id,
+    chat_id,
+    camera_id,
+    range_id,
+    back_id,
+    after_last_element_id
 } touch_gui_button_id;
 
 #define MIN_DIG_TIME_MS 500
 #define MAX_TOUCH_COUNT 64
+#define BUTTON_REPEAT_DELAY 0.2f
 
-extern const char** touchgui_button_imagenames;
+extern const char *touchgui_button_imagenames[];
 
 class TouchScreenGUI
 {
@@ -78,8 +82,9 @@ public:
 
 	void Hide();
 	void Show();
-
+    bool checkBackKeyOnInvisible(IGUIButton* target);
 private:
+    IGUIButton*             m_back_button;
 	IrrlichtDevice*         m_device;
 	IGUIEnvironment*        m_guienv;
 	IEventReceiver*         m_receiver;
@@ -88,6 +93,7 @@ private:
 	std::map<int,rect<s32> > m_hud_rects;
 	std::map<int,irr::EKEY_CODE> m_hud_ids;
 	bool                    m_visible; // is the gui visible
+	rect<s32>				controlpadarea;
 
 	/* value in degree */
 	double                  m_camera_yaw;
@@ -105,10 +111,12 @@ private:
 
 	struct button_info {
 		float            repeatcounter;
+		float            repeatdelay;
 		irr::EKEY_CODE   keycode;
 		std::vector<int> ids;
 		IGUIButton*      guibutton;
 		bool             immediate_release;
+        bool              playsound;
 	};
 
 	button_info m_buttons[after_last_element_id];
@@ -124,10 +132,11 @@ private:
 
 	/* initialize a button */
 	void initButton(touch_gui_button_id id, rect<s32> button_rect,
-			std::wstring caption, bool immediate_release );
+			std::wstring caption, bool immediate_release,
+			float repeat_delay,bool playsound);
 
 	/* load texture */
-	void loadButtonTexture(button_info* btn, const char* path);
+	void loadButtonTexture(button_info* btn, const char* path, rect<s32> button_rect);
 
 	struct id_status{
 		int id;
@@ -139,16 +148,22 @@ private:
 	std::vector<id_status> m_known_ids;
 
 	/* handle a button event */
-	void ButtonEvent(touch_gui_button_id bID, int eventID, bool action);
+	void handleButtonEvent(touch_gui_button_id bID, int eventID, bool action);
 
 	/* handle pressed hud buttons */
 	bool isHUDButton(const SEvent &event);
 
 	/* handle released hud buttons */
 	bool isReleaseHUDButton(int eventID);
+	
+	/* get size of regular gui control button */
+	int getGuiButtonSize();
 
 	/* handle double taps */
 	bool doubleTapDetection();
+
+	/* handle release event */
+	void handleReleaseEvent(int evt_id);
 
 	/* doubleclick detection variables */
 	struct key_event {

@@ -638,11 +638,10 @@ void GUITable::draw()
 	client_clip.UpperLeftCorner.Y += 1;
 	client_clip.UpperLeftCorner.X += 1;
 	client_clip.LowerRightCorner.Y -= 1;
-	client_clip.LowerRightCorner.X -= 1;
-	if (m_scrollbar->isVisible()) {
-		client_clip.LowerRightCorner.X =
-				m_scrollbar->getAbsolutePosition().UpperLeftCorner.X;
-	}
+	client_clip.LowerRightCorner.X -=
+		m_scrollbar->isVisible() ?
+		skin->getSize(gui::EGDS_SCROLLBAR_SIZE) :
+		1;
 	client_clip.clipAgainst(AbsoluteClippingRect);
 
 	// draw visible rows

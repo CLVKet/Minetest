@@ -549,20 +549,16 @@ void initializePaths()
 #endif // RUN_IN_PLACE
 }
 
-static irr::IrrlichtDevice *device;
+static irr::IrrlichtDevice* device;
 
-void initIrrlicht(irr::IrrlichtDevice *device_)
-{
-	device = device_;
+void initIrrlicht(irr::IrrlichtDevice * _device) {
+	device = _device;
 }
 
 void setXorgClassHint(const video::SExposedVideoData &video_data,
 	const std::string &name)
 {
 #ifdef XORG_USED
-	if (video_data.OpenGLLinux.X11Display == NULL)
-		return;
-
 	XClassHint *classhint = XAllocClassHint();
 	classhint->res_name  = (char *)name.c_str();
 	classhint->res_class = (char *)name.c_str();
@@ -574,110 +570,17 @@ void setXorgClassHint(const video::SExposedVideoData &video_data,
 }
 
 #ifndef SERVER
-v2u32 getWindowSize()
-{
+v2u32 getWindowSize() {
 	return device->getVideoDriver()->getScreenSize();
 }
 
-
-std::vector<core::vector3d<u32> > getVideoModes()
-{
-	std::vector<core::vector3d<u32> > mlist;
-	video::IVideoModeList *modelist = device->getVideoModeList();
-
-	u32 num_modes = modelist->getVideoModeCount();
-	for (u32 i = 0; i != num_modes; i++) {
-		core::dimension2d<u32> mode_res = modelist->getVideoModeResolution(i);
-		s32 mode_depth = modelist->getVideoModeDepth(i);
-		mlist.push_back(core::vector3d<u32>(mode_res.Width, mode_res.Height, mode_depth));
-	}
-
-	return mlist;
-}
-
-std::vector<irr::video::E_DRIVER_TYPE> getSupportedVideoDrivers()
-{
-	std::vector<irr::video::E_DRIVER_TYPE> drivers;
-
-	for (int i = 0; i != irr::video::EDT_COUNT; i++) {
-		if (irr::IrrlichtDevice::isDriverSupported((irr::video::E_DRIVER_TYPE)i))
-			drivers.push_back((irr::video::E_DRIVER_TYPE)i);
-	}
-
-	return drivers;
-}
-
-const char *getVideoDriverName(irr::video::E_DRIVER_TYPE type)
-{
-	static const char *driver_ids[] = {
-		"null",
-		"software",
-		"burningsvideo",
-		"direct3d8",
-		"direct3d9",
-		"opengl",
-		"ogles1",
-		"ogles2",
-	};
-
-	return driver_ids[type];
-}
-
-
-const char *getVideoDriverFriendlyName(irr::video::E_DRIVER_TYPE type)
-{
-	static const char *driver_names[] = {
-		"NULL Driver",
-		"Software Renderer",
-		"Burning's Video",
-		"Direct3D 8",
-		"Direct3D 9",
-		"OpenGL",
-		"OpenGL ES1",
-		"OpenGL ES2",
-	};
-
-	return driver_names[type];
-}
-
-
 #ifndef __ANDROID__
-#ifdef XORG_USED
-float getDisplayDensity()
-{
-	const char* current_display = getenv("DISPLAY");
 
-	if (current_display != NULL) {
-			Display * x11display = XOpenDisplay(current_display);
-
-			if (x11display != NULL) {
-				/* try x direct */
-				float dpi_height =
-						floor(DisplayHeight(x11display, 0) /
-								(DisplayHeightMM(x11display, 0) * 0.039370) + 0.5);
-				float dpi_width =
-						floor(DisplayWidth(x11display, 0) /
-								(DisplayWidthMM(x11display, 0) * 0.039370) +0.5);
-
-				XCloseDisplay(x11display);
-
-				return (std::max(dpi_height,dpi_width) / 96.0);
-			}
-		}
-
-	/* return manually specified dpi */
+float getDisplayDensity() {
 	return g_settings->getFloat("screen_dpi")/96.0;
 }
 
-#else
-float getDisplayDensity()
-{
-	return g_settings->getFloat("screen_dpi")/96.0;
-}
-#endif
-
-v2u32 getDisplaySize()
-{
+v2u32 getDisplaySize() {
 	IrrlichtDevice *nulldevice = createDevice(video::EDT_NULL);
 
 	core::dimension2d<u32> deskres = nulldevice->getVideoModeList()->getDesktopResolution();

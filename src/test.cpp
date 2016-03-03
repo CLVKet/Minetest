@@ -59,7 +59,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define UTEST(x, fmt, ...)\
 {\
 	if(!(x)){\
-		dstream << "Test (" #x ") failed: " fmt << std::endl; \
+		LOGLINEF(LMT_ERROR, "Test (%s) failed: " fmt, #x, ##__VA_ARGS__);\
 		test_failed = true;\
 	}\
 }
@@ -189,7 +189,7 @@ struct TestUtilities: public TestBase
 		str_replace(test_str, "there", "world");
 		UASSERT(test_str == "Hello world");
 		test_str = "ThisAisAaAtest";
-		str_replace(test_str, 'A', ' ');
+		str_replace_char(test_str, 'A', ' ');
 		UASSERT(test_str == "This is a test");
 		UASSERT(string_allowed("hello", "abcdefghijklmno") == true);
 		UASSERT(string_allowed("123", "abcdefghijklmno") == false);
@@ -855,8 +855,9 @@ struct TestMapNode: public TestBase
 {
 	void Run(INodeDefManager *nodedef)
 	{
-		MapNode n(CONTENT_AIR);
+		MapNode n;
 
+		// Default values
 		UASSERT(n.getContent() == CONTENT_AIR);
 		UASSERT(n.getLight(LIGHTBANK_DAY, nodedef) == 0);
 		UASSERT(n.getLight(LIGHTBANK_NIGHT, nodedef) == 0);

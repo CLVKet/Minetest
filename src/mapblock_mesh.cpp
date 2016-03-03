@@ -288,15 +288,9 @@ static u16 getSmoothLightCombined(v3s16 p, MeshMakeData *data)
 
 	if (ambient_occlusion > 4)
 	{
-		static const float ao_gamma = rangelim(
-			g_settings->getFloat("ambient_occlusion_gamma"), 0.25, 4.0);
-
-		// Table of gamma space multiply factors.
-		static const float light_amount[3] = {
-			powf(0.75, 1.0 / ao_gamma),
-			powf(0.5,  1.0 / ao_gamma),
-			powf(0.25, 1.0 / ao_gamma)
-		};
+		//table of precalculated gamma space multiply factors
+		//light^2.2 * factor (0.75, 0.5, 0.25, 0.0), so table holds factor ^ (1 / 2.2)
+		static const float light_amount[4] = { 0.877424315, 0.729740053, 0.532520545, 0.0 };
 
 		//calculate table index for gamma space multiplier
 		ambient_occlusion -= 5;
@@ -346,15 +340,15 @@ void finalColorBlend(video::SColor& result,
 		1, 4, 6, 6, 6, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	};
-	b += emphase_blue_when_dark[irr::core::clamp(b, 0, 255) / 8];
-	b = irr::core::clamp(b, 0, 255);
+	b += emphase_blue_when_dark[b / 8];
+	b = irr::core::clamp (b, 0, 255);
 
 	// Artificial light is yellow-ish
 	static const u8 emphase_yellow_when_artificial[16] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 15, 15, 15
 	};
 	rg += emphase_yellow_when_artificial[night/16];
-	rg = irr::core::clamp(rg, 0, 255);
+	rg = irr::core::clamp (rg, 0, 255);
 
 	result.setRed(rg);
 	result.setGreen(rg);
@@ -699,7 +693,8 @@ TileSpec getNodeTile(MapNode mn, v3s16 p, v3s16 dir, MeshMakeData *data)
 
 	// Get rotation for things like chests
 	u8 facedir = mn.getFaceDir(ndef);
-
+	if (facedir > 23)
+		facedir = 0;
 	static const u16 dir_to_tile[24 * 16] =
 	{
 		// 0     +X    +Y    +Z           -Z    -Y    -X   ->   value=tile,rotation

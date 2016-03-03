@@ -91,11 +91,11 @@
 #define PROJECT_NAME "WorldCraft"
 #define RUN_IN_PLACE 0
 #define USE_GETTEXT 0
-#define USE_SOUND 0
-#define USE_CURL 0
-#define USE_FREETYPE 0
+#define USE_SOUND 1
+#define USE_CURL 1
+#define USE_FREETYPE 1
 #define STATIC_SHAREDIR ""
-#define USE_LEVELDB 0
+#define USE_LEVELDB 1
 #define USE_LUAJIT 0
 #define USE_REDIS 0
 

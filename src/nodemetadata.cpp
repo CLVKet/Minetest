@@ -109,10 +109,10 @@ void NodeMetadataList::serialize(std::ostream &os) const
 
 void NodeMetadataList::deSerialize(std::istream &is, IGameDef *gamedef)
 {
-	clear();
+	m_data.clear();
 
 	u8 version = readU8(is);
-
+	
 	if(version == 0){
 		// Nothing
 		return;

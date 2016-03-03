@@ -29,7 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define VMANIP_FLAG_DUNGEON_UNTOUCHABLE (\
 		VMANIP_FLAG_DUNGEON_INSIDE|VMANIP_FLAG_DUNGEON_PRESERVE)
 
-class MMVManip;
+class ManualMapVoxelManipulator;
 class INodeDefManager;
 
 v3s16 rand_ortho_dir(PseudoRandom &random, bool diagonal_dirs);
@@ -57,7 +57,7 @@ struct DungeonParams {
 
 class DungeonGen {
 public:
-	MMVManip *vm;
+	ManualMapVoxelManipulator *vm;
 	Mapgen *mg;
 	u32 blockseed;
 	PseudoRandom random;

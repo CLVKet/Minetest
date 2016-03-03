@@ -42,8 +42,6 @@ struct MapgenV7Params : public MapgenSpecificParams {
 	NoiseParams np_ridge_uwater;
 	NoiseParams np_mountain;
 	NoiseParams np_ridge;
-	NoiseParams np_cave1;
-	NoiseParams np_cave2;
 
 	MapgenV7Params();
 	~MapgenV7Params() {}
@@ -61,6 +59,7 @@ public:
 	int zstride;
 	u32 spflags;
 
+	u32 blockseed;
 	v3s16 node_min;
 	v3s16 node_max;
 	v3s16 full_node_min;
@@ -77,8 +76,6 @@ public:
 	Noise *noise_ridge_uwater;
 	Noise *noise_mountain;
 	Noise *noise_ridge;
-	Noise *noise_cave1;
-	Noise *noise_cave2;
 
 	Noise *noise_heat;
 	Noise *noise_humidity;
@@ -111,7 +108,7 @@ public:
 
 	virtual int generateTerrain();
 	int generateBaseTerrain();
-	int generateMountainTerrain(int ymax);
+	void generateMountainTerrain();
 	void generateRidgeTerrain();
 
 	void generateBiomes();
@@ -123,13 +120,11 @@ public:
 };
 
 struct MapgenFactoryV7 : public MapgenFactory {
-	Mapgen *createMapgen(int mgid, MapgenParams *params, EmergeManager *emerge)
-	{
+	Mapgen *createMapgen(int mgid, MapgenParams *params, EmergeManager *emerge) {
 		return new MapgenV7(mgid, params, emerge);
 	};
 
-	MapgenSpecificParams *createMapgenParams()
-	{
+	MapgenSpecificParams *createMapgenParams() {
 		return new MapgenV7Params();
 	};
 };

@@ -28,53 +28,52 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <list>
 #include <vector>
 #include <map>
-#include <set>
-#include <queue>
 
 /*
-Queue with unique values with fast checking of value existence
+	Queue with unique values with fast checking of value existence
 */
 
 template<typename Value>
 class UniqueQueue
 {
 public:
-
+	
 	/*
-	Does nothing if value is already queued.
-	Return value:
-	true: value added
-	false: value already exists
+		Does nothing if value is already queued.
+		Return value:
+			true: value added
+			false: value already exists
 	*/
-	bool push_back(const Value& value)
+	bool push_back(Value value)
 	{
-		if (m_set.insert(value).second)
-		{
-			m_queue.push(value);
-			return true;
-		}
-		return false;
+		// Check if already exists
+		if(m_map.find(value) != m_map.end())
+			return false;
+
+		// Add
+		m_map[value] = 0;
+		m_list.push_back(value);
+		
+		return true;
 	}
 
-	void pop_front()
+	Value pop_front()
 	{
-		m_set.erase(m_queue.front());
-		m_queue.pop();
+		typename std::list<Value>::iterator i = m_list.begin();
+		Value value = *i;
+		m_map.erase(value);
+		m_list.erase(i);
+		return value;
 	}
 
-	const Value& front() const
+	u32 size()
 	{
-		return m_queue.front();
-	}
-
-	u32 size() const
-	{
-		return m_queue.size();
+		return m_map.size();
 	}
 
 private:
-	std::set<Value> m_set;
-	std::queue<Value> m_queue;
+	std::map<Value, u8> m_map;
+	std::list<Value> m_list;
 };
 
 #if 1
@@ -85,14 +84,14 @@ public:
 	MutexedMap()
 	{
 	}
-
+	
 	void set(const Key &name, const Value &value)
 	{
 		JMutexAutoLock lock(m_mutex);
 
 		m_values[name] = value;
 	}
-
+	
 	bool get(const Key &name, Value *result)
 	{
 		JMutexAutoLock lock(m_mutex);
@@ -102,10 +101,10 @@ public:
 
 		if(n == m_values.end())
 			return false;
-
+		
 		if(result != NULL)
 			*result = n->second;
-
+			
 		return true;
 	}
 
@@ -113,13 +112,13 @@ public:
 	{
 		std::list<Value> result;
 		for(typename std::map<Key, Value>::iterator
-			i = m_values.begin();
-			i != m_values.end(); ++i){
+				i = m_values.begin();
+				i != m_values.end(); ++i){
 			result.push_back(i->second);
 		}
 		return result;
 	}
-
+	
 	void clear ()
 	{
 		m_values.clear();
@@ -132,16 +131,16 @@ private:
 #endif
 
 /*
-Generates ids for comparable values.
-Id=0 is reserved for "no value".
+	Generates ids for comparable values.
+	Id=0 is reserved for "no value".
 
-Is fast at:
-- Returning value by id (very fast)
-- Returning id by value
-- Generating a new id for a value
+	Is fast at:
+	- Returning value by id (very fast)
+	- Returning id by value
+	- Generating a new id for a value
 
-Is not able to:
-- Remove an id/value pair (is possible to implement but slow)
+	Is not able to:
+	- Remove an id/value pair (is possible to implement but slow)
 */
 template<typename T>
 class MutexedIdGenerator
@@ -150,7 +149,7 @@ public:
 	MutexedIdGenerator()
 	{
 	}
-
+	
 	// Returns true if found
 	bool getValue(u32 id, T &value)
 	{
@@ -162,7 +161,7 @@ public:
 		value = m_id_to_value[id-1];
 		return true;
 	}
-
+	
 	// If id exists for value, returns the id.
 	// Otherwise generates an id for the value.
 	u32 getId(const T &value)
@@ -186,7 +185,7 @@ private:
 };
 
 /*
-FIFO queue (well, actually a FILO also)
+	FIFO queue (well, actually a FILO also)
 */
 template<typename T>
 class Queue
@@ -201,7 +200,7 @@ public:
 		m_list.push_back(t);
 		++m_list_size;
 	}
-
+	
 	void push_front(T t)
 	{
 		m_list.push_front(t);
@@ -247,7 +246,7 @@ protected:
 };
 
 /*
-Thread-safe FIFO queue (well, actually a FILO also)
+	Thread-safe FIFO queue (well, actually a FILO also)
 */
 
 template<typename T>
@@ -273,8 +272,8 @@ public:
 	}
 
 	/* this version of pop_front returns a empty element of T on timeout.
-	* Make sure default constructor of T creates a recognizable "empty" element
-	*/
+	 * Make sure default constructor of T creates a recognizable "empty" element
+	 */
 	T pop_frontNoEx(u32 wait_time_max_ms)
 	{
 		if (m_size.Wait(wait_time_max_ms))
@@ -340,8 +339,8 @@ public:
 	}
 
 	/* this version of pop_back returns a empty element of T on timeout.
-	* Make sure default constructor of T creates a recognizable "empty" element
-	*/
+	 * Make sure default constructor of T creates a recognizable "empty" element
+	 */
 	T pop_backNoEx(u32 wait_time_max_ms=0)
 	{
 		if (m_size.Wait(wait_time_max_ms))
