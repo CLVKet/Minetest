@@ -2,7 +2,7 @@
 
 Minetest is an open source game developed by a [number of contributors](https://github.com/minetest/minetest/graphs/contributors).
 
-
+Minetest
 ========
 
 An InfiniMiner/Minecraft inspired game.
